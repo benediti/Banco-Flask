@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Processador de Pagamentos Itaú</title>
+</head>
+<body>
+    <h1>Processador de Pagamentos Itaú</h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li><strong>{{ message }}</strong></li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <form method="post" enctype="multipart/form-data">
+        <label>Base de Funcionários (.xls/.xlsx):</label>
+        <input type="file" name="base_file" accept=".xls,.xlsx" required><br><br>
+        <label>Arquivo de Pagamentos (.xlsx):</label>
+        <input type="file" name="pag_file" accept=".xlsx" required><br><br>
+        <input type="submit" value="Processar">
+    </form>
+    <hr>
+    <h3>Log:</h3>
+    <pre>
+    {% for l in log %}
+        {{ l }}
+    {% endfor %}
+    </pre>
+</body>
+</html>
