@@ -108,3 +108,6 @@ def index():
             flash(f"Erro: {str(e)}")
             return render_template('index.html', log=log)
     return render_template('index.html', log=log)
+
+if __name__ == '__main__':
+    app.run(debug=True)
