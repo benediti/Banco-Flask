@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import os
+import io  # Adicionado para manipular arquivos em memória
 
 def normalizar_cpf(cpf):
     """
@@ -11,7 +12,7 @@ def normalizar_cpf(cpf):
         return None
     import re
     cpf_str = str(cpf)
-    cpf_str = re.sub(r'[^\d]', '', cpf_str)
+    cpf_str = re.sub(r'[^\\d]', '', cpf_str)
     if len(cpf_str) > 0 and len(cpf_str) <= 11:
         cpf_str = cpf_str.zfill(11)
     return cpf_str if len(cpf_str) == 11 else None
@@ -43,9 +44,13 @@ if base_fixa_file is not None and pagamentos_file is not None:
             lista_nao_encontrados = pag[pag['cpf'].isin(cpfs_nao_encontrados)]
             st.write("Detalhes dos CPFs não encontrados:")
             st.dataframe(lista_nao_encontrados)
+            # Usando BytesIO para exportar o Excel em memória
+            output_nao_encontrados = io.BytesIO()
+            lista_nao_encontrados.to_excel(output_nao_encontrados, index=False, engine='xlsxwriter')
+            output_nao_encontrados.seek(0)
             st.download_button(
                 label="Baixar CPFs não encontrados",
-                data=lista_nao_encontrados.to_excel(index=False, engine='xlsxwriter'),
+                data=output_nao_encontrados,
                 file_name=f"nao_encontrados_{datetime.now().strftime('%Y%m%d')}.xlsx",
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
@@ -71,9 +76,13 @@ if base_fixa_file is not None and pagamentos_file is not None:
         st.write(f"Arquivo final terá {len(layout_final)} registros")
         st.write(f"Valor total dos pagamentos: R$ {layout_final['G'].sum():,.2f}")
         st.dataframe(layout_final)
+        # Usando BytesIO para exportar o Excel em memória
+        layout_output = io.BytesIO()
+        layout_final.to_excel(layout_output, index=False, header=False, engine='xlsxwriter')
+        layout_output.seek(0)
         st.download_button(
             label="Baixar arquivo final",
-            data=layout_final.to_excel(index=False, header=False, engine='xlsxwriter'),
+            data=layout_output,
             file_name=f"layout_itau_{datetime.now().strftime('%Y%m%d')}.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
